@@ -1,0 +1,24 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "78a245a8065c8cd47b25b27f8cdc644c"
+application_url = "https://disable-routine-reached-blonde.trycloudflare.com"
+embedded = true
+name = "Mo App Ala"
+handle = "mo-app-ala"
+
+[webhooks]
+api_version = "2024-01"
+
+[auth]
+redirect_urls = [
+  "https://disable-routine-reached-blonde.trycloudflare.com/auth/callback",
+  "https://disable-routine-reached-blonde.trycloudflare.com/auth/shopify/callback",
+  "https://disable-routine-reached-blonde.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
+
+[build]
+dev_store_url = "al-amin-extensibility-store.myshopify.com"
+automatically_update_urls_on_dev = true
