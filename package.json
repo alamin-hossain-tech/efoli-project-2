@@ -37,12 +37,15 @@
     "prisma": "^5.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.54.2",
+    "save": "^2.9.0",
     "vite-tsconfig-paths": "^5.0.1"
   },
   "devDependencies": {
     "@remix-run/eslint-config": "^2.7.1",
     "@remix-run/route-config": "^2.15.0",
     "@shopify/api-codegen-preset": "^1.1.1",
+    "@shopify/app-bridge-types": "^0.0.16",
     "@types/eslint": "^8.40.0",
     "@types/node": "^22.2.0",
     "@types/react": "^18.2.31",

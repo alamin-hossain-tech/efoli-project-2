@@ -45,8 +45,6 @@ model Product {
   id String @id @default(cuid())
   productId String
   name String
-  price       Float
-  image String
   collections Collection[] @relation("CollectionProducts")
 }
 
