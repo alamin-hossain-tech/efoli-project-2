@@ -1,13 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -31,20 +25,19 @@ model Session {
   emailVerified Boolean?  @default(false)
 }
 
-
 model Collection {
-  id String @id @default(cuid())
-  name String @unique
-  priority   Priority?
-  products   Product[]   @relation("CollectionProducts")
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id        String    @id @default(cuid())
+  name      String    @unique
+  priority  Priority?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[] @relation("CollectionProducts")
 }
 
 model Product {
-  id String @id @default(cuid())
-  productId String
-  name String
+  id          String       @id @default(cuid())
+  productId   String
+  name        String
   collections Collection[] @relation("CollectionProducts")
 }
 

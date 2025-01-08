@@ -252,14 +252,6 @@ export async function action({ request }: ActionFunctionArgs) {
     return { error: "Missing required fields" };
   }
 
-  // let products: { productId: string; name: string; image: string }[] = [];
-
-  // try {
-  //   products = JSON.parse(productsString); // Parse the JSON string
-  // } catch (error) {
-  //   return { error: "Invalid products format" };
-  // }
-
   try {
     await prisma.collection.create({
       data: {
@@ -269,7 +261,6 @@ export async function action({ request }: ActionFunctionArgs) {
           create: products.map((p: any) => ({
             productId: p.productId,
             name: p.name,
-            image: p.image,
           })),
         },
       },
