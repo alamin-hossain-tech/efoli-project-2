@@ -158,8 +158,13 @@ export default function Index() {
                     </IndexTable.Cell>
 
                     <IndexTable.Cell>
-                      <InlineStack align="end" gap={"100"}>
-                        <Button icon={<Icon source={ViewIcon} />} />
+                      <InlineStack align="end" gap={"200"}>
+                        <Button
+                          onClick={() =>
+                            navigate(`/app/view-collection/${collection.id}`)
+                          }
+                          icon={<Icon source={ViewIcon} />}
+                        />
                         <Button
                           onClick={() =>
                             navigate(`/app/edit-collection/${collection.id}`)
