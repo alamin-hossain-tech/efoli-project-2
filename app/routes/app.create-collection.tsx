@@ -27,18 +27,6 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { useEffect } from "react";
 import productImage from "../assets/no-product.png";
 
-type ProductPayload = {
-  productId: string;
-  name: string;
-  image: string;
-};
-
-type CollectionFormData = {
-  title: string;
-  priority?: string;
-  products: ProductPayload[];
-};
-
 export async function action({ request }: ActionFunctionArgs) {
   const data = await request.json();
 

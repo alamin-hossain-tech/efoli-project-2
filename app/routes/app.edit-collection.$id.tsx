@@ -28,18 +28,6 @@ import { Controller, useForm } from "react-hook-form";
 
 import productImage from "../assets/no-product.png";
 
-type ProductPayload = {
-  productId: string;
-  name: string;
-  image: string;
-};
-
-type CollectionFormData = {
-  title: string;
-  priority?: string;
-  products: ProductPayload[];
-};
-
 export const loader: LoaderFunction = async ({ params }) => {
   const { id } = params;
 
