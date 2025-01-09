@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import _ from "lodash";
+import type { Priority } from "@prisma/client";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import {
   Await,
   useLoaderData,
@@ -18,12 +18,19 @@ import {
   Text,
   TextField,
 } from "@shopify/polaris";
-import { DeleteIcon, SearchIcon } from "@shopify/polaris-icons";
-import { Suspense } from "react";
-import { authenticate } from "../shopify.server";
+import { EditIcon, SearchIcon, ViewIcon } from "@shopify/polaris-icons";
+import _ from "lodash";
+import { Suspense, useMemo, useState } from "react";
 
-export const loader = () => {
+export const loader = ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
+  const search = url.searchParams.get("search") || "";
+  const priority = (url.searchParams.get("priority") || "") as Priority;
   return prisma.collection.findMany({
+    where: {
+      name: { contains: search },
+      ...(priority && { priority }),
+    },
     select: {
       id: true,
       name: true,
@@ -36,79 +43,49 @@ export const loader = () => {
   });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($product: ProductCreateInput!) {
-        productCreate(product: $product) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        product: {
-          title: `${color} Snowboard`,
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
-
-  const product = responseJson.data!.productCreate!.product!;
-  const variantId = product.variants.edges[0]!.node!.id!;
-
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyRemixTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
-      }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
-  );
-
-  const variantResponseJson = await variantResponse.json();
-
-  return {
-    product: responseJson!.data!.productCreate!.product,
-    variant:
-      variantResponseJson!.data!.productVariantsBulkUpdate!.productVariants,
-  };
-};
-
 export default function Index() {
   const navigate = useNavigate();
   const collection = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || "",
+  );
+  const [priority, setPriority] = useState(searchParams.get("priority") || "");
+
+  // Debounced handler for search text
+  const debouncedSetSearchParams = useMemo(
+    () =>
+      _.debounce((value) => {
+        setSearchParams((prev) => {
+          const params = new URLSearchParams(prev);
+          if (value) {
+            params.set("search", value);
+          } else {
+            params.delete("search");
+          }
+          return params;
+        });
+      }, 300),
+    [setSearchParams],
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    debouncedSetSearchParams(value);
+  };
+
+  const handlePriorityChange = (value: string) => {
+    setPriority(value);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (value) {
+        params.set("priority", value);
+      } else {
+        params.delete("priority");
+      }
+      return params;
+    });
+  };
 
   return (
     <Page>
@@ -130,6 +107,9 @@ export default function Index() {
                 labelHidden
                 autoComplete="off"
                 prefix={<Icon source={SearchIcon} />}
+                onChange={handleSearchChange}
+                value={searchTerm}
+                placeholder="Search collections..."
               />
             </div>
             <Select
@@ -137,10 +117,13 @@ export default function Index() {
               labelHidden
               placeholder="Select priority"
               options={[
+                { label: "All", value: "" },
                 { label: "High", value: "HIGH" },
                 { label: "Medium", value: "MEDIUM" },
                 { label: "Low", value: "LOW" },
               ]}
+              onChange={handlePriorityChange}
+              value={priority}
             />
           </InlineStack>
         </div>
@@ -175,8 +158,14 @@ export default function Index() {
                     </IndexTable.Cell>
 
                     <IndexTable.Cell>
-                      <InlineStack align="end">
-                        <Button icon={<Icon source={DeleteIcon} />} />
+                      <InlineStack align="end" gap={"100"}>
+                        <Button icon={<Icon source={ViewIcon} />} />
+                        <Button
+                          onClick={() =>
+                            navigate(`/app/edit-collection/${collection.id}`)
+                          }
+                          icon={<Icon source={EditIcon} />}
+                        />
                       </InlineStack>
                     </IndexTable.Cell>
                   </IndexTable.Row>

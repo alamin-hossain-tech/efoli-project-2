@@ -38,6 +38,7 @@ model Product {
   id          String       @id @default(cuid())
   productId   String
   name        String
+  image       String
   collections Collection[] @relation("CollectionProducts")
 }
 
