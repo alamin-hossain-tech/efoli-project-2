@@ -4,7 +4,6 @@ import {
   useNavigation,
   useSubmit,
 } from "@remix-run/react";
-import { useAppBridge } from "@shopify/app-bridge-react";
 import {
   BlockStack,
   Button,
@@ -42,7 +41,7 @@ type CollectionFormData = {
 
 const CreateCollectionPage = () => {
   const navigate = useNavigate();
-  const shopify = useAppBridge();
+  // const shopify = useAppBridge();
 
   const {
     handleSubmit,
@@ -59,6 +58,14 @@ const CreateCollectionPage = () => {
     },
   });
   const products = watch("products");
+
+  const handleRemoveProduct = (id: string) => {
+    setValue(
+      "products",
+      products.filter((p) => p.productId !== id),
+    );
+  };
+
   const submit = useSubmit();
   const onSubmit = (data: CollectionFormData) => {
     if (products.length < 1) {
@@ -68,23 +75,23 @@ const CreateCollectionPage = () => {
     }
   };
 
-  const onSearchProduct = async (query?: string) => {
+  const onSearchProduct = async () => {
     const selected: any = await shopify.resourcePicker({
       type: "product",
       multiple: true,
-      action: "select",
-      // query: query || "",
       selectionIds: products?.map((p) => ({ id: p.productId })),
     });
 
-    setValue(
-      "products",
-      selected?.map((p: any) => ({
-        name: p.title,
-        productId: p.id,
-        image: p?.images[0]?.originalSrc,
-      })) || [],
-    );
+    if (selected.length > 0) {
+      setValue(
+        "products",
+        selected?.map((p: any) => ({
+          name: p.title,
+          productId: p.id,
+          image: p?.images[0]?.originalSrc,
+        })) || [],
+      );
+    }
   };
 
   const navigation = useNavigation();
@@ -99,7 +106,7 @@ const CreateCollectionPage = () => {
         reset();
       }
     }
-  }, [actionData, reset, shopify.toast]);
+  }, [actionData, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -176,8 +183,8 @@ const CreateCollectionPage = () => {
                       placeholder="Search for a product..."
                       autoComplete="off"
                       prefix={<Icon source={SearchIcon} />}
-                      onChange={(e) => {
-                        onSearchProduct(e);
+                      onChange={() => {
+                        onSearchProduct();
                       }}
                     />
                   </div>
@@ -212,6 +219,7 @@ const CreateCollectionPage = () => {
                             variant="plain"
                             tone="critical"
                             icon={<Icon tone="critical" source={DeleteIcon} />}
+                            onClick={() => handleRemoveProduct(p.productId)}
                           />
                         </InlineStack>
                         <Divider />
@@ -267,8 +275,10 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     return { success: true };
-  } catch (error) {
-    console.error("Prisma insertion error:", error);
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      return { error: "Collection Name should be unique" };
+    }
     return { error: "Failed to save data" };
   }
 }

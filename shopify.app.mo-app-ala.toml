@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "78a245a8065c8cd47b25b27f8cdc644c"
-application_url = "https://burning-latin-bin-alarm.trycloudflare.com"
+application_url = "https://doctors-woman-dressed-hitachi.trycloudflare.com"
 embedded = true
 name = "Mo App Ala"
 handle = "mo-app-ala"
@@ -11,9 +11,9 @@ api_version = "2024-01"
 
 [auth]
 redirect_urls = [
-  "https://burning-latin-bin-alarm.trycloudflare.com/auth/callback",
-  "https://burning-latin-bin-alarm.trycloudflare.com/auth/shopify/callback",
-  "https://burning-latin-bin-alarm.trycloudflare.com/api/auth/callback"
+  "https://doctors-woman-dressed-hitachi.trycloudflare.com/auth/callback",
+  "https://doctors-woman-dressed-hitachi.trycloudflare.com/auth/shopify/callback",
+  "https://doctors-woman-dressed-hitachi.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
